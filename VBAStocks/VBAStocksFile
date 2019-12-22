@@ -1,0 +1,131 @@
+Sub StockDataTest():
+
+'Create Variables
+
+Dim total As Double
+Dim delta As Double
+Dim row_num As Long
+Dim begin As Long
+Dim PercentChange As Double
+Dim day As Integer
+Dim deltaday As Double
+
+'Loop Sheets
+Dim currentsheet As Worksheet
+' i as row and j as column
+Dim i As Long
+Dim j As Integer
+
+For Each currentsheet In Worksheets
+
+    j = 0
+    total = 0
+    delta = 0
+    begin = 2
+    deltaday = 0
+
+    currentsheet.Range("I1").Value = "Ticker"
+    currentsheet.Range("J1").Value = "Yearly Change"
+    currentsheet.Range("K1").Value = "Percent Change"
+    currentsheet.Range("L1").Value = "Total Stock Volume"
+    currentsheet.Range("P1").Value = "Ticker"
+    currentsheet.Range("Q1").Value = "Value"
+    
+    'Challenges Add In Cell Structure
+    currentsheet.Range("O2").Value = "Greatest % Increase"
+    currentsheet.Range("O3").Value = "Greatest % Decrease"
+    currentsheet.Range("O4").Value = "Greatest Total Volume"
+    
+    'Calculate total # of rows
+    row_num = Cells(rows.Count, "A").End(xlUp).Row
+    
+    For i = 2 To row_num
+        If currentsheet.Cells(i + 1, 1).Value <> currentsheet.Cells(i, 1).Value Then
+            total = total + currentsheet.Cells(i, 7).Value
+            If total = 0 Then
+                currentsheet.Range("I" & j + 2).Value = Cells(i, 1).Value
+                currentsheet.Range("J" & j + 2).Value = 0
+                currentsheet.Range("K" & j + 2).Value = "%" & 0
+                currentsheet.Range("L" & j + 2).Value = 0
+                
+            Else
+                If currentsheet.Cells(begin, 3) = 0 Then
+                    For x = begin To i
+                        If currentsheet.Cells(x, 3).Value <> 0 Then
+                        begin = x
+                            Exit For
+                        End If
+                    Next x
+                End If
+            
+            delta = (currentsheet.Cells(i, 6) - currentsheet.Cells(begin, 3))
+            PercentChange = Round((delta / currentsheet.Cells(begin, 3) * 100), 2)
+            
+            begin = i + 1
+            
+            currentsheet.Range("I" & j + 2).Value = currentsheet.Cells(i, 1).Value
+            currentsheet.Range("J" & j + 2).Value = Round(delta, 2)
+            currentsheet.Range("K" & j + 2).Value = "%" & PercentChange
+            currentsheet.Range("L" & j + 2).Value = total
+            
+            
+            'Paste in color pallete. Red is 3, green is 4.....Adding in no fill = 0 http://dmcritchie.mvps.org/excel/colors.htm
+            'Look into cases to simplify https://www.techonthenet.com/excel/formulas/case.php
+            
+            Select Case delta
+            
+                Case Is > 0
+                    currentsheet.Range("J" & j + 2).Interior.ColorIndex = 4
+                Case Is < 0
+                    currentsheet.Range("J" & j + 2).Interior.ColorIndex = 3
+                Case Else
+                    currentsheet.Range("J" & j + 2).Interior.ColorIndex = 0
+                End Select
+                
+            End If
+            
+            total = 0
+            delta = 0
+            j = j + 1
+            day = 0
+            deltaday = 0
+            
+        Else
+            total = total + currentsheet.Cells(i, 7).Value
+                
+        End If
+            
+    Next i
+        
+        'Challenge Stuff
+        
+    currentsheet.Range("Q2") = "%" & WorksheetFunction.Max(currentsheet.Range("K2:K" & row_num)) * 100
+    currentsheet.Range("Q3") = "%" & WorksheetFunction.Min(currentsheet.Range("K2:K" & row_num)) * 100
+    currentsheet.Range("Q4") = WorksheetFunction.Max(currentsheet.Range("L2:L" & row_num))
+    TickerMax = WorksheetFunction.Match(WorksheetFunction.Max(currentsheet.Range("K2:K" & row_num)), currentsheet.Range("K2:K" & row_num), 0)
+    TickerMin = WorksheetFunction.Match(WorksheetFunction.Min(currentsheet.Range("K2:K" & row_num)), currentsheet.Range("K2:K" & row_num), 0)
+    TotalStockVol = WorksheetFunction.Match(WorksheetFunction.Max(currentsheet.Range("L2:L" & row_num)), currentsheet.Range("L2:L" & row_num), 0)
+    currentsheet.Range("P2") = currentsheet.Cells(TickerMax + 1, 9)
+    currentsheet.Range("P3") = currentsheet.Cells(TickerMin + 1, 9)
+    currentsheet.Range("P4") = currentsheet.Cells(TotalStockVol + 1, 9)
+   
+Next currentsheet
+
+
+
+                    
+            
+            
+                
+            
+            
+                
+        
+    
+    
+    
+
+
+
+
+End Sub
